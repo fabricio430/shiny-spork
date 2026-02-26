@@ -1,18 +1,52 @@
+﻿using DevFreela.API.Database;
+using DevFreela.API.ExceptionHandler;
+using DevFreela.API.Models.Config;
+using DevFreela.API.Services;
+using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.Configure<FreelanceTotalCostConfig>(
+    builder.Configuration.GetSection("FreelanceTotalCostConfig")
+);
+
+// Configure to use in-memory database
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("MyDatabase"));
+
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<ISkillsService, SkillsService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+
+builder.Services.AddProblemDetails();
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.MapOpenApi();
+
+app.MapScalarApiReference();
+
+app.UseExceptionHandler();
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 
