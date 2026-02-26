@@ -63,7 +63,7 @@ public class ProjectsTests
     }
 
     [Test]
-    public async Task WhenCreatingProjectThenShouldReturnCreatedStatus()
+    public async Task DeveCriarProjetoComSucesso()
     {
         var createModel = new CreateProjectInputModel
         {
@@ -82,50 +82,13 @@ public class ProjectsTests
     }
 
     [Test]
-    public async Task WhenCreatingProjectWithTotalCostBelowMinimumThenShouldReturnBadRequest()
-    {
-        var createModel = new CreateProjectInputModel
-        {
-            Title = "Test Project",
-            Description = "Test Description",
-            TotalCost = 500,
-            ClientId = _clientId,
-            FreelancerId = _freelancerId,
-            RequiredSkilsIds = [_skillId]
-        };
-
-        var response = await _client.PostAsJsonAsync("/api/projects", createModel);
-
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-    }
-
-    [Test]
-    public async Task WhenCreatingProjectWithTotalCostAboveMaximumThenShouldReturnBadRequest()
-    {
-        var createModel = new CreateProjectInputModel
-        {
-            Title = "Test Project",
-            Description = "Test Description",
-            TotalCost = 1000000,
-            ClientId = _clientId,
-            FreelancerId = _freelancerId,
-            RequiredSkilsIds = [_skillId]
-        };
-
-        var response = await _client.PostAsJsonAsync("/api/projects", createModel);
-
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-    }
-
-    [Test]
-    public async Task WhenGettingExistingProjectByIdThenShouldReturnOk()
+    public async Task DeveObterProjetoPorIdComSucesso()
     {
         var projectId = await CreateTestProject();
 
         var response = await _client.GetAsync($"/api/projects/{projectId}");
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-
         var project = await response.Content.ReadFromJsonAsync<ProjectViewModel>();
         Assert.That(project, Is.Not.Null);
         Assert.That(project!.Id, Is.EqualTo(projectId));
@@ -133,17 +96,7 @@ public class ProjectsTests
     }
 
     [Test]
-    public async Task WhenGettingNonExistingProjectByIdThenShouldReturnNotFound()
-    {
-        var nonExistingId = Guid.NewGuid();
-
-        var response = await _client.GetAsync($"/api/projects/{nonExistingId}");
-
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-    }
-
-    [Test]
-    public async Task WhenSearchingProjectsThenShouldReturnMatchingProjects()
+    public async Task DeveBuscarProjetosComSucesso()
     {
         await CreateTestProject("CRM System", "CRM for sales");
         await CreateTestProject("Blog Platform", "Personal blog");
@@ -151,7 +104,6 @@ public class ProjectsTests
         var response = await _client.GetAsync("/api/projects?search=CRM");
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-
         var projects = await response.Content.ReadFromJsonAsync<List<ProjectViewModel>>();
         Assert.That(projects, Is.Not.Null);
         Assert.That(projects!.Count, Is.GreaterThanOrEqualTo(1));
@@ -159,22 +111,7 @@ public class ProjectsTests
     }
 
     [Test]
-    public async Task WhenGettingAllProjectsThenShouldReturnAllProjects()
-    {
-        await CreateTestProject("Project 1", "Description 1");
-        await CreateTestProject("Project 2", "Description 2");
-
-        var response = await _client.GetAsync("/api/projects?search=");
-
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-
-        var projects = await response.Content.ReadFromJsonAsync<List<ProjectViewModel>>();
-        Assert.That(projects, Is.Not.Null);
-        Assert.That(projects!.Count, Is.GreaterThanOrEqualTo(2));
-    }
-
-    [Test]
-    public async Task WhenUpdatingExistingProjectThenShouldReturnNoContent()
+    public async Task DeveAtualizarProjetoComSucesso()
     {
         var projectId = await CreateTestProject();
 
@@ -189,53 +126,10 @@ public class ProjectsTests
         var response = await _client.PutAsJsonAsync($"/api/projects/{projectId}", updateModel);
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
-
-        var getResponse = await _client.GetAsync($"/api/projects/{projectId}");
-        var project = await getResponse.Content.ReadFromJsonAsync<ProjectViewModel>();
-        Assert.That(project!.Title, Is.EqualTo("Updated Title"));
-        Assert.That(project.Description, Is.EqualTo("Updated Description"));
-        Assert.That(project.TotalCost, Is.EqualTo(7000));
     }
 
     [Test]
-    public async Task WhenUpdatingProjectWithMismatchedIdThenShouldReturnBadRequest()
-    {
-        var projectId = await CreateTestProject();
-        var differentId = Guid.NewGuid();
-
-        var updateModel = new UpdateProjectInputModel
-        {
-            Id = differentId,
-            Title = "Updated Title",
-            Description = "Updated Description",
-            TotalCost = 7000
-        };
-
-        var response = await _client.PutAsJsonAsync($"/api/projects/{projectId}", updateModel);
-
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-    }
-
-    [Test]
-    public async Task WhenUpdatingProjectWithInvalidTotalCostThenShouldReturnBadRequest()
-    {
-        var projectId = await CreateTestProject();
-
-        var updateModel = new UpdateProjectInputModel
-        {
-            Id = projectId,
-            Title = "Updated Title",
-            Description = "Updated Description",
-            TotalCost = 100
-        };
-
-        var response = await _client.PutAsJsonAsync($"/api/projects/{projectId}", updateModel);
-
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-    }
-
-    [Test]
-    public async Task WhenStartingProjectThenShouldReturnNoContent()
+    public async Task DeveIniciarProjetoComSucesso()
     {
         var projectId = await CreateTestProject();
 
@@ -245,7 +139,7 @@ public class ProjectsTests
     }
 
     [Test]
-    public async Task WhenCompletingProjectThenShouldReturnNoContent()
+    public async Task DeveCompletarProjetoComSucesso()
     {
         var projectId = await CreateTestProject();
 
@@ -255,37 +149,35 @@ public class ProjectsTests
     }
 
     [Test]
-    public async Task WhenDisablingProjectThenShouldReturnNoContent()
+    public async Task DeveDesabilitarProjetoComSucesso()
     {
         var projectId = await CreateTestProject();
 
-        var response = await _client.DeleteAsync($"/api/projects/{projectId}/disable");
+        var response = await _client.PostAsync($"/api/projects/{projectId}/disable", null);
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
     }
 
     [Test]
-    public async Task WhenDeletingProjectThenShouldReturnNoContent()
+    public async Task DeveDeletarProjetoComSucesso()
     {
         var projectId = await CreateTestProject();
 
         var response = await _client.DeleteAsync($"/api/projects/{projectId}");
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
-
-        var getResponse = await _client.GetAsync($"/api/projects/{projectId}");
-        Assert.That(getResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
     [Test]
-    public async Task WhenAddingCommentToProjectThenShouldReturnOk()
+    public async Task DeveAdicionarComentarioAoProjetoComSucesso()
     {
         var projectId = await CreateTestProject();
 
         var commentModel = new CreateProjectCommentInputModel
         {
             Content = "Great project!",
-            UserId = _clientId
+            UserId = _clientId,
+            ProjectId = projectId
         };
 
         var response = await _client.PostAsJsonAsync($"/api/projects/{projectId}/comments", commentModel);

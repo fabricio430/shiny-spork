@@ -8,6 +8,8 @@ namespace DevFreela.API.Tests.IntegrationTests;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private readonly string _databaseName = $"TestDatabase_{Guid.NewGuid()}";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
@@ -22,7 +24,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseInMemoryDatabase($"TestDatabase_{Guid.NewGuid()}");
+                options.UseInMemoryDatabase(_databaseName);
             });
 
             var sp = services.BuildServiceProvider();
